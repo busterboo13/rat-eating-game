@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rat Game</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+    }
+    #loadingText {
+        font-size: 24px;
+    }
+    #gameCanvas {
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<div id="loadingText">Loading...</div>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+    // Loading screen
+    setTimeout(function() {
+        document.getElementById("loadingText").style.display = "none";
+        document.getElementById("gameCanvas").style.display = "block";
+    }, 2000);
+
+    // Game variables
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    let cheeseEaten = 0;
+    let score = 0;
+
+    // Rat properties
+    let rat = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        size: 20,
+        speed: 5,
+        color: 'brown'
+    };
+
+    // Cheese properties
+    let cheese = {
+        x: Math.floor(Math.random() * canvas.width),
+        y: Math.floor(Math.random() * canvas.height),
+        size: 20,
+        color: 'yellow'
+    };
+
+    // Update game elements
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawCheese();
+        drawRat();
+    }
+
+    // Draw rat
+    function drawRat() {
+        ctx.fillStyle = rat.color;
+        ctx.fillRect(rat.x, rat.y, rat.size, rat.size);
+    }
+
+    // Draw cheese
+    function drawCheese() {
+        ctx.fillStyle = cheese.color;
+        ctx.fillRect(cheese.x, cheese.y, cheese.size, cheese.size);
+    }
+
+    // Move rat and handle collisions
+    function moveRat(event) {
+        switch(event.key) {
+            case "ArrowUp":
+                rat.y -= rat.speed;
+                break;
+            case "ArrowDown":
+                rat.y += rat.speed;
+                break;
+            case "ArrowLeft":
+                rat.x -= rat.speed;
+                break;
+            case "ArrowRight":
+                rat.x += rat.speed;
+                break;
+        }
+
+        // Check collision with cheese
+        if (rat.x < cheese.x + cheese.size &&
+            rat.x + rat.size > cheese.x &&
+            rat.y < cheese.y + cheese.size &&
+            rat.y + rat.size > cheese.y) {
+            // Increase score and update cheese position
+            score++;
+            cheeseEaten++;
+            document.getElementById("score").textContent = "Score: " + score;
+            cheese.x = Math.floor(Math.random() * canvas.width);
+            cheese.y = Math.floor(Math.random() * canvas.height);
+            // Increase rat size
+            rat.size += 5;
+        }
+
+        // Check if rat has exploded
+        if (cheeseEaten >= 100) {
+            alert("You exploded! Game Over.");
+            document.location.reload();
+        }
+    }
+
+    // Event listener for keyboard input
+    document.addEventListener("keydown", moveRat);
+    
+    // Game loop
+    setInterval(update, 1000 / 60); // 60 frames per second
+</script>
+
+<div id="score" style="position: absolute; top: 10px; left: 10px;">Score: 0</div>
+
+</body>
+</html>
